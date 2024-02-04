@@ -1,15 +1,15 @@
 <template>
   <div>
     <div class="alert alert-info">
-      <strong>Normal User</strong> - U: user P: user
+      <strong>Обычный пользователь</strong> - Пользователь: user Пароль: user
       <br>
-      <strong>Administrator</strong> - U: admin P: admin
+      <strong>Администратор</strong> - Пользователь: admin Пароль: admin
     </div>
-    <h2>Login</h2>
+    <h2>Логин</h2>
     
-    <VeeForm @submit="onSubmit" v-slot="{ values, errors }">
+    <VeeForm @submit="onSubmit" v-slot="{ errors }">
       <div class="form-group">
-        <label for="username">Username</label>
+        <label for="username">Пользователь</label>
         <VeeField
           type="text"
           v-model.trim="username"
@@ -22,7 +22,7 @@
       </div>
 
       <div class="form-group">
-        <label for="password">Password</label>
+        <label for="password">Пароль</label>
         <VeeField
           type="password"
           v-model.trim="password"
@@ -37,7 +37,7 @@
       <div class="form-group">
         <button class="btn btn-primary" :disabled="loading">
           <span class="spinner-border spinner-border-sm" v-show="loading"></span>
-          <span>Login</span>
+          <span>Логин</span>
         </button>
       </div>
       <div v-if="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
@@ -46,40 +46,38 @@
 </template>
 
 <script setup>
-import authGlobal from '~/middleware/auth.global';
+const { $authenticationService } = useNuxtApp() // импорт из плагина authenticationService
+const route = useRoute(); // используем route, присваивая переменной
+const router = useRouter(); // используем router, присваивая переменной
 
-const { $authenticationService } = useNuxtApp()
-const route = useRoute();
-const router = useRouter();
+// создаем блок перменных
+const username = ref(''); // значение поля пользователя
+const password = ref('');  // значение поля пароль
+let loading = ref(false); // флаг для отображения загрузки, имитация запроса на сервер
+let returnUrl = ref(''); // переменная под meta для маршрута
+let errorMessage = ref(''); // переменная для отображения ошибки под формой
 
-const username = ref('');
-const password = ref('');
-let submitted = ref(false);
-let loading = ref(false);
-let returnUrl = ref('');
-let errorMessage = ref('');
+const onSubmit = (values) => { // ф-ия для отправки формы
 
-const onSubmit = (values) => {
-  submitted.value = true;
-
-  loading.value = true;
-  $authenticationService.login(values.username, values.password)
+  loading.value = true; // устанавливаем флаг загрузки в true, отображаем загрузку в кнопке
+  $authenticationService.login(values.username, values.password) // вызываем ф-ию из плагина authenticationService, передаем в нее значения из полей формы
     .then(
-      user => router.push(returnUrl.value),
-      error => {
-        errorMessage.value = error;
-        loading.value = false;
-      }
-  );
+      (user) => {
+        // при успешной аутентификации (разрешении промиса) перейдем по пути
+        router.push(returnUrl.value);
+      },
+      (error) => {
+        // в случае ошибки выведем сообщение из fake-backend
+        errorMessage.value = error; // присовим в текст оишибки значение Promise
+        loading.value = false; // установим флаг загрузки в false
+      })
 }
 
 onMounted(() => {
-  // console.log($authenticationService.currentUserValue);
-if ($authenticationService.currentUserValue) {
+if ($authenticationService.currentUserValue) { // если пользователь авторизован, перенаправляем его на домашнюю страницу
   router.push("/");
 }
 
-returnUrl.value = route.query.returnUrl || "/";
+returnUrl.value = route.query.returnUrl || "/"; // установим значение пути по умолчанию если query в текущем route пустой иначе значение из query route
 })
-console.log();
 </script>

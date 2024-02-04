@@ -1,9 +1,9 @@
 <template>
   <div>
-    <h1>Admin</h1>
-    <p>This page can only be accessed by administrators.</p>
+    <h1>Администратор</h1>
+    <p>Эта страница может быть видна только администраторам.</p>
     <div>
-      All users from secure (admin only) api end point:
+      Список всех пользователей из защищенного (только для администраторов) api эндпоинта:
       <ul v-if="users.length">
         <li v-for="user in users" :key="user.id">
           {{ user.firstName + " " + user.lastName }}
@@ -14,21 +14,20 @@
 </template>
 
 <script setup>
-const { userService } = useUserService();
-const { $authenticationService } = useNuxtApp();
+definePageMeta({
+  authorize: [useRole.Admin], // установим значение в meta из composable значения Admin 
+})
 
+const { userService } = useUserService(); // импортируем composable 
 
-const users = ref([]);
+const users = ref([]); // создадим массив в котором будут значения из асинхронного ответа
 
 onMounted( async () => {
-  let user = $authenticationService.currentUserValue;
-  
   try {
-    const fetchedUsers = await userService.getAll();
-    users.value = fetchedUsers;
+    const fetchedUsers = await userService.getAll(); // выполняем запрос с использованием метода из модуля userService
+    users.value = fetchedUsers; // присвоим ответ в реактивную переменную 
   } catch (error) {
-    console.error('Error fetching users:', error);
+    console.error('Error fetching users:', error); // обработаем ошибки
   }
 })
-  
 </script>

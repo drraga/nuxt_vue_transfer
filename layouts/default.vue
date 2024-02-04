@@ -2,9 +2,9 @@
     <div>
     <nav v-if="currentUser" class="navbar navbar-expand navbar-dark bg-dark">
       <div class="navbar-nav">
-        <NuxtLink to="/" class="nav-item nav-link">Home</NuxtLink>
-        <NuxtLink v-if="isAdmin" to="/admin" class="nav-item nav-link">Admin</NuxtLink>
-        <NuxtLink @click="logout" class="nav-item nav-link">Logout</NuxtLink>
+        <NuxtLink to="/" class="nav-item nav-link">Дом</NuxtLink>
+        <NuxtLink v-if="isAdmin" to="/admin" class="nav-item nav-link">Администратор</NuxtLink>
+        <NuxtLink @click="logout" class="nav-item nav-link">Выход</NuxtLink>
       </div>
     </nav>
     <div class="jumbotron">
@@ -35,23 +35,23 @@
 </template>
 
 <script setup>
-const { $authenticationService } = useNuxtApp();
-const route = useRoute();
-const router = useRouter();
+const { $authenticationService } = useNuxtApp(); // импорт из плагина $authenticationService
+const router = useRouter(); // импорт router
 
-let currentUser = ref(null);
+let currentUser = ref(null); // создаем реактивную переменную
 
-const logout = () => {
-  $authenticationService.logout();
-  router.push("/login");
+const logout = () => { // ф-иия логаута 
+  $authenticationService.logout(); // вызываем ф-ию logout из плагина $authenticationService
+  router.push("/login"); // переходим на страницу логина
 }
 
 const isAdmin = computed(() => {
-  return currentUser.value && currentUser.value.role === useRole.Admin;
+  return currentUser.value && currentUser.value.role === useRole.Admin; // проверяем авторизован ли пользователь и установлена ли у него роль админ
 });
 
 onMounted(() => {
-  $authenticationService.currentUser.subscribe(x => (currentUser.value = x));
+  $authenticationService.currentUser.subscribe(x => (currentUser.value = x)); // подписываемся на значения текущего пользователя из плагина
+  // и задаем значение из плагина в переменную currentUser
 })
 </script>
 

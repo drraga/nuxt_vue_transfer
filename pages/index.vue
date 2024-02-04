@@ -1,11 +1,11 @@
 <template>
   <div>
-      <h1>Home</h1>
-      <p>You're logged in with Vue.js & JWT!!</p>
-      <p>Your role is: <strong>{{ currentUser.role }}</strong>.</p>
-      <p>This page can be accessed by all authenticated users.</p>
+      <h1>Домашняя страница</h1>
+      <p>Вы залогинены с помощью Vue.js и JWT!!</p>
+      <p>Ваша роль: <strong>{{ currentUser?.role }}</strong>.</p>
+      <p>Эта страница может быть доступна всем аутентифицированным пользователям.</p>
       <div>
-          Current user from secure api end point:
+          Текущий пользователь из защищенного api эндпоинта:
           <ul v-if="userFromApi">
               <li>{{ userFromApi.firstName }} {{ userFromApi.lastName }}</li>
           </ul>
@@ -14,28 +14,27 @@
 </template>
 
 <script setup>
-const { userService } = useUserService();
-const { $authenticationService } = useNuxtApp();
-
-let currentUser = ref('')
-let userFromApi = ref(null);
-currentUser = computed(() => useNuxtApp().$authenticationService.currentUserValue);
-// currentUser = computed(() => {
-//   if ($authenticationService.currentUserValue) {
-//     return $authenticationService.currentUserValue
-//   } else {
-//     return '';
-//   }
-// });
-
-onMounted(async () => {
-  // currentUser = useNuxtApp().$authenticationService.currentUserValue;
-
-    try {
-      const fetchedId = await userService.getById($authenticationService.currentUserValue.id);
-      userFromApi.value = fetchedId;
-    } catch (error) {
-      console.error(`Error message: ${error}`)
-    }
+definePageMeta({
+  authorize: [], // задаем meta на странице пустого массива
 })
+
+const { userService } = useUserService(); // деструктурируем ф-ию из composable 
+const { $authenticationService } = useNuxtApp(); // деструктурируем ф-ию из плагина
+
+
+let userFromApi = ref(null); // создаем переменную для значений из запроса
+
+let currentUser = computed(() => $authenticationService.currentUserValue); // получим значение пользователя из файла аутентификации
+
+onMounted(() => {
+  userService.getById($authenticationService.currentUserValue.id) // запрос по текущему значению id из плагина с файлом аутентификации
+    .then((fetchedId) => {
+      userFromApi.value = fetchedId; // присвоим значение ответа в реактивную переменную
+    })
+    .catch((error) => {
+      console.error(`Error message: ${error}`); // обработка ошибок
+    });
+});
+
+
 </script>

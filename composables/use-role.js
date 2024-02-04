@@ -1,4 +1,4 @@
-export default {
-        Admin: 'Admin',
+export default { // экспортируем объект с переменными
+        Admin: 'Admin', 
         User: 'User'
 }

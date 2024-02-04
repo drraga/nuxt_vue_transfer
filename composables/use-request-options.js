@@ -1,17 +1,17 @@
-export default () => {
+export default () => { // экспортируем модуль
 
-const requestOptions = {
+const requestOptions = { // объект прдоставит методы для создания запросов 
   get() {
-    return {
-      method: "GET",
-      ...headers()
+    return { //вернет
+      method: "GET", //название метода
+      ...headers() // Spread ф-ии которая возвращает объект с заголовками
     };
   },
-  post(body) {
+  post(body) { // метод в который передаем тело запроса
     return {
       method: "POST",
       ...headers(),
-      body: JSON.stringify(body),
+      body: JSON.stringify(body), // создаем тело запроса с помощью метода JSON.stringify
     };
   },
   patch(body) {
@@ -37,21 +37,21 @@ const requestOptions = {
 };
 
 function headers() {
-  const currentUser = useNuxtApp().$authenticationService.currentUserValue || {};
-  const authHeader = currentUser.token
-    ? { Authorization: "Bearer " + currentUser.token }
-    : {};
+  const currentUser = useNuxtApp().$authenticationService.currentUserValue || {}; // присвоим переменной значени пользователя из плагина или пустой объект
+  const authHeader = currentUser.token // если имеется токен у пользователя 
+    ? { Authorization: "Bearer " + currentUser.token } // создаем заголовок 
+    : {}; // или пустой объект
   return {
-    headers: {
-      ...authHeader,
-      "Content-Type": "application/json"
+    headers: { // свформируем объект заголовка
+      ...authHeader, // распарсим с помощью Spread оператора перменную
+      "Content-Type": "application/json" // задаем тип контента в заголовке
     }
   };
 }
 
 
 return {
-  requestOptions,
+  requestOptions, // возвращаем методы при обращении к текущему composable
   headers,
 };
 }
